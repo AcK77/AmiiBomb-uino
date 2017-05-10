@@ -1,0 +1,295 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BD0FE5AD-B8C1-4246-ADFB-2D0F5F26602C}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AmiiBomb</RootNamespace>
+    <AssemblyName>AmiiBomb</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PublishUrl>publier\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>AmiiBomb_Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.9.9\lib\net45\AngleSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="IntelHexFormatReader, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IntelHexFormatReader.2.2.2\lib\net452\IntelHexFormatReader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.6\lib\net45\NLog.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RJCP.SerialPortStream">
+      <HintPath>bin\Debug\lib\RJCP.SerialPortStream.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="About_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About_Form.Designer.cs">
+      <DependentUpon>About_Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Arduino_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Arduino_Form.Designer.cs">
+      <DependentUpon>Arduino_Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Class\AmiiboLife_Class.cs" />
+    <Compile Include="Class\Amiibo_Class.cs" />
+    <Compile Include="Class\ArduinoUploader\ArduinoSketchUploader.cs" />
+    <Compile Include="Class\ArduinoUploader\ArduinoSketchUploaderOptions.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\ArduinoBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\BootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\ButterflyBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\IBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\OptibootBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\SerialPortBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\SerialPortConfig.cs" />
+    <Compile Include="Class\ArduinoUploader\BootloaderProgrammers\WiringBootloaderProgrammer.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\ArduinoModel.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\ATMega2560.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\ATMega328P.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\ATMega32U4.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Command.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\IMCU.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\MCU.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Memory\EEPROMMemory.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Memory\FlashMemory.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Memory\IMemory.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Memory\Memory.cs" />
+    <Compile Include="Class\ArduinoUploader\Hardware\Memory\MemoryType.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Constants.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\CheckBlockSupportRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\CheckBlockSupportResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\EnterProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ExitBootLoaderRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReadSignatureBytesRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReadSignatureBytesResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnProgrammerTypeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnProgrammerTypeResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnSoftwareIdentifierRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnSoftwareIdentifierResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnSoftwareVersionRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnSoftwareVersionResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\ReturnSupportedDeviceCodesRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\SelectDeviceTypeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\SetAddressRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\StartBlockLoadRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\StartBlockReadRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\AVR109\Messages\StartBlockReadResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\IMessage.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\IRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\Request.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\Response.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Constants.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\EnableProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\ExecuteProgramPageRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\ExecuteReadPageRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\GetParameterRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\GetSyncRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\GetSyncResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\LoadAddressRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\ReadSignatureRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\ReadSignatureResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v1\Messages\SetDeviceProgrammingParametersRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Constants.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\EnableProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\EnableProgrammingModeResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\ExecuteProgramPageRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\ExecuteProgramPageResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\ExecuteReadPageRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\ExecuteReadPageResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\GetParameterRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\GetParameterResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\GetSyncRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\GetSyncResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\LeaveProgrammingModeRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\LeaveProgrammingModeResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\LoadAddressRequest.cs" />
+    <Compile Include="Class\ArduinoUploader\Protocols\STK500v2\Messages\LoadAddressResponse.cs" />
+    <Compile Include="Class\ArduinoUploader\UploaderLogger.cs" />
+    <Compile Include="Class\Arduino_Class.cs" />
+    <Compile Include="Class\COM_Class.cs" />
+    <Compile Include="Class\Config_Class.cs" />
+    <Compile Include="Class\CountryCode_Class.cs" />
+    <Compile Include="Class\I18n_Class.cs" />
+    <Compile Include="Class\libamiibo\AmiiboKeys.cs" />
+    <Compile Include="Class\libamiibo\ArraySegmentExtensions.cs" />
+    <Compile Include="Class\libamiibo\DrbgCtx.cs" />
+    <Compile Include="Class\libamiibo\KeygenDerivedkeys.cs" />
+    <Compile Include="Class\libamiibo\KeygenMasterkeys.cs" />
+    <Compile Include="Class\libamiibo\NativeHelpers.cs" />
+    <Compile Include="Class\libamiibo\NtagHelpers.cs" />
+    <Compile Include="Class\NLog_Class.cs" />
+    <Compile Include="Class\SimpleJSON_Class.cs" />
+    <Compile Include="Class\Translate_Class.cs" />
+    <Compile Include="Flash_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Flash_Form.Designer.cs">
+      <DependentUpon>Flash_Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main_Form.Designer.cs">
+      <DependentUpon>Main_Form.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Class\Helper_Class.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="About_Form.resx">
+      <DependentUpon>About_Form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Arduino_Form.resx">
+      <DependentUpon>Arduino_Form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Flash_Form.resx">
+      <DependentUpon>Flash_Form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main_Form.resx">
+      <DependentUpon>Main_Form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="ico\AmiiBomb_Iconx32.png" />
+    <None Include="ico\delete.png" />
+    <None Include="ico\controller.png" />
+    <None Include="ico\plugin.png" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AmiiBomb_Icon.ico" />
+    <None Include="ico\package_go.png" />
+    <None Include="ico\key_go.png" />
+    <None Include="ico\key_delete.png" />
+    <None Include="ico\key_add.png" />
+    <None Include="ico\key.png" />
+    <None Include="ico\application_get.png" />
+    <None Include="ico\help.png" />
+    <None Include="ico\tag_blue_add.png" />
+    <None Include="ico\application_side_expand.png" />
+    <None Include="ico\application_side_contract.png" />
+    <None Include="ico\lock_edit.png" />
+    <None Include="ico\script_lightning.png" />
+    <None Include="ico\script_delete.png" />
+    <None Include="ico\script.png" />
+    <None Include="ico\fr.png" />
+    <None Include="ico\us.png" />
+    <None Include="ico\cog.png" />
+    <None Include="ico\world.png" />
+    <None Include="ico\lock.png" />
+    <None Include="ico\amiibo-icon.png" />
+    <None Include="ico\amiibo-logo.png" />
+    <None Include="ico\information.png" />
+    <None Include="ico\service_status.png" />
+    <None Include="ico\page.png" />
+    <None Include="ico\lock_open.png" />
+    <None Include="ico\lock_go.png" />
+    <None Include="ico\folder_vertical_open.png" />
+    <None Include="ico\database_go.png" />
+    <None Include="ico\cancel.png" />
+    <None Include="ico\accept_button.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
