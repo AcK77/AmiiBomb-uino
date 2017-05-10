@@ -68,7 +68,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(73, 91);
             this.label8.TabIndex = 24;
-            this.label8.Text = "AmiiBomb\r\nv0.2 Alpha\r\n\r\nAmiiBombuino\r\nv0.2 Alpha\r\n\r\nby Ac_K";
+            this.label8.Text = "AmiiBomb\r\nv0.2 Alpha\r\n\r\nAmiiBombuino\r\nv0.1 Alpha\r\n\r\nby Ac_K";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1
