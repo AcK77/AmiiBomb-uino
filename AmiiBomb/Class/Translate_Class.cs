@@ -32,6 +32,8 @@ namespace AmiiBomb
             Form.fileToolStripMenuItem.Text = i18n.__("Menu_File");
                 Form.selectbinFolderToolStripMenuItem.Text = i18n.__("Menu_Select_Amiibo_Folder");
                 Form.dumpAmiiboToolStripMenuItem.Text = i18n.__("Menu_Dump_Amiibo");
+                    Form.amiiBombuinoToolStripMenuItem.Text = i18n.__("Menu_Dump_AmiiBombuino");
+                    Form.powerSavesToolStripMenuItem.Text = i18n.__("Menu_Dump_PowerSaves");
                 Form.flashAmiiBombuinoToolStripMenuItem.Text = i18n.__("Menu_Flash_AmiiBombuino");
                     Form.internalFlasherToolStripMenuItem.Text = i18n.__("Menu_Internal_Flasher");
                     Form.withXLoaderToolStripMenuItem.Text = i18n.__("Menu_XLoader");
@@ -46,6 +48,8 @@ namespace AmiiBomb
                 Form.filesCacheToolStripMenuItem.Text = i18n.__("Menu_Files_Cache");
                     Form.activeFilesCachingToolStripMenuItem.Text = i18n.__("Menu_Active_Cache");
                     Form.deleteCacheToolStripMenuItem.Text = i18n.__("Menu_Delete_Cache");
+                Form.websiteInformationsToolStripMenuItem.Text = i18n.__("Menu_Amiibo_Databases");
+                Form.searchToolStripMenuItem.Text = i18n.__("Menu_Search");
                 Form.languagesToolStripMenuItem.Text = i18n.__("Menu_Languages");
 
             //Help Menu
@@ -57,18 +61,21 @@ namespace AmiiBomb
 
             //Amiibo Menu
             Form.amiiboToolStripMenuItem.Text = i18n.__("Menu_Amiibo_Menu");
-                Form.moreInformationsToolStripMenuItem.Text = "..." + i18n.__("Menu_Amiibo_More_Informations");
+                Form.moreInformationsToolStripMenuItem.Text = i18n.__("Menu_Amiibo_More_Informations") + "...";
                 Form.actionsToolStripMenuItem.Text = "..." + i18n.__("Menu_Amiibo_Action");
                     Form.decryptToolStripMenuItem.Text = i18n.__("Menu_Amiibo_Decrypt");
                     Form.createTagToolStripMenuItem.Text = i18n.__("Menu_Amiibo_CreateTag");
                     Form.dumpAppDataToolStripMenuItem.Text = i18n.__("Menu_Amiibo_Dump_AppData");
                     Form.writeAppDataToolStripMenuItem.Text = i18n.__("Menu_Amiibo_Write_AppData");
+                    Form.appDataEditorToolStripMenuItem.Text = i18n.__("Menu_Amiibo_AppData_Editor");
 
             Form.deleteFileToolStripMenuItem.Text = i18n.__("Menu_Delete_File");
 
             //ListView
             //--------
             ((ColumnHeader)Form.listView1.Columns[0]).Text = i18n.__("Table_Column_File");
+
+            Form.textBox1.Text = i18n.__("Search");
         }
 
         public static void Translate(Flash_Form Form)
@@ -87,6 +94,7 @@ namespace AmiiBomb
             Form.Text = i18n.__("About_Windows_Title") + " AmiiBomb";
             Form.label3.Text = i18n.__("About_Library");
             Form.label1.Text = i18n.__("About_Thanks");
+            Form.label2.Text = i18n.__("About_Donators");
             Form.label10.Text = i18n.__("About_Translation_By");
             Form.label9.Text = "● " + i18n.__("About_Donate");
         }
@@ -97,6 +105,23 @@ namespace AmiiBomb
             Form.label1.Text = i18n.__("AmiiBombuino_Port");
             Form.label2.Text = i18n.__("AmiiBombuino_Model");
             Form.button1.Text = i18n.__("AmiiBombuino_Flash");
+        }
+
+        public static void Translate(Editor_TPWolf_Form Form)
+        {
+            Form.label1.Text = i18n.__("TP_Editor_Level");
+            Form.label2.Text = i18n.__("TP_Editor_Hearts");
+            Form.label5.Text = i18n.__("TP_Editor_Minimum_Health");
+            Form.button1.Text = i18n.__("TP_Editor_Save");
+            Form.button2.Text = i18n.__("TP_Editor_Cancel");
+            Form.button3.Text = i18n.__("TP_Editor_SaveAs");
+        }
+
+        public static void Translate(PowerSaves_Form Form)
+        {
+            Form.label1.Text = i18n.__("PowerSaves_Name");
+            Form.label2.Text = i18n.__("PowerSaves_ID");
+            Form.button1.Text = i18n.__("PowerSaves_Dump_Button");
         }
     }
 }

@@ -25,7 +25,7 @@ namespace AmiiBomb
         public static byte[] Calculate_Long_UID(string Short_UID)
         {
             /*
-                0x00 - UID0 - Manufacturer Code (0x04 for NXP)
+                0x00 - UID0 - Manufacturer Code (0x04 for NXP - random if spoofed)
                 0x01 - UID1
                 0x02 - UID2
                 0x03 - BCC0 - 0x88 ^ UID0 ^ UID1 ^ UID2
@@ -45,11 +45,12 @@ namespace AmiiBomb
         public static bool IsEncrypted(byte[] Data)
         {
             /*
-                0x04 - Manufacturer Code (0x04 for NXP)
-                0x48 - Internal Byte, Always 0x48
-                Todo - Add a LockBytes Check ?
+                0x01 - 0x04 - Manufacturer Code (0x04 for NXP - random if spoofed)
+                0x09 - 0x48 - Internal Byte, always 0x48 (But not when spoofed dirty)
+                0x0A - 0x0F - Lock Byte
+                0x0B - 0xE0 - Lock Byte
             */
-            if (Data[9] == 0x48) return true;
+            if (Data[10] == 0x0F && Data[11] == 0xE0) return true;
             else return false;
         }
 
@@ -86,6 +87,18 @@ namespace AmiiBomb
             Array.Copy(new byte[] { 0x80, 0x80 }, 0x000, Decrypted_Amiibo, 0x218, 0x002); //Reset PACK0 & PACK1
 
             return Amiibo_Class.Encrypt(Decrypted_Amiibo, Main_Form.AmiiKeys);
+        }
+
+        public static byte[] Generate_Random_UID()
+        {
+            byte[] UID = new byte[9];
+            Random Random = new Random();
+            Random.NextBytes(UID);
+
+            UID[3] = (byte)(0x88 ^ UID[0] ^ UID[1] ^ UID[2]);
+            UID[8] = (byte)(UID[3] ^ UID[4] ^ UID[5] ^ UID[6]);
+
+            return UID;
         }
 
         public static string Get_NFC_ID(byte[] internalTag)

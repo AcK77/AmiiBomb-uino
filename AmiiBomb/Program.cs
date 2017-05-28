@@ -12,15 +12,16 @@ namespace AmiiBomb
             try
             {
                 Check_AmiiBomb_Files();
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Main_Form());
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 Application.Exit();
             }
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Main_Form());
         }
 
         private static void Check_AmiiBomb_Files()

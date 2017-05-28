@@ -8,21 +8,32 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using AmiiBomb.Properties;
 using System.Drawing;
+using System.Collections.Generic;
 
 namespace AmiiBomb
 {
     public partial class Main_Form : Form
     {
-        Config_Class Config = new Config_Class();
-        FileSystemWatcher Watcher = new FileSystemWatcher();
+        public static Config_Class Config = new Config_Class();
+        FileSystemWatcher File_Watcher = new FileSystemWatcher();
+        FileSystemWatcher Folder_Watcher = new FileSystemWatcher();
         public static AmiiboKeys AmiiKeys;
         Thread thCheck_Clipboard;
         string Last_File_Watched = "",
-        Last_Action_Watched = "",
+        Last_File_Action_Watched = "",
+        Last_Folder_Watched = "",
+        Last_Folder_Action_Watched = "",
         AmiiBomb_Config_File = "lib\\AmiiBomb.conf",
-        Amiibo_Keys_Hash = "BBDBB49A917D14F7A997D327BA40D40C39E606CE";
+        Amiibo_Keys_Hash = "BBDBB49A917D14F7A997D327BA40D40C39E606CE",
+        Current_Folder = "",
+        Search_Backup_Current_Folder = "";
+        Button Exit_Search_Button = new Button();
+        TreeNode Last_Node;
         string Current_NFC_ID = "";
         private I18n i18n = I18n.Instance;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
 
         public Main_Form()
         {
@@ -31,6 +42,11 @@ namespace AmiiBomb
             Helper_Class.DoubleBuffered(listView1, true);
             splitContainer1.Panel1MinSize = 0;
             splitContainer1.Panel2MinSize = 0;
+
+            splitContainer3.Panel1Collapsed = true;
+            splitContainer3.Panel1.Hide();
+
+            AddSearchButton();
         }
 
         private Assembly LoadAssembly(object sender, ResolveEventArgs args)
@@ -51,25 +67,56 @@ namespace AmiiBomb
 
         public void FileWatcher()
         {
-            Watcher.Path = Config.Bin_Folder_Path;
-            Watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
-            Watcher.Filter = "*.bin";
+            File_Watcher.Path = Current_Folder;
+            File_Watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName;
+            File_Watcher.Filter = "*.bin";
 
-            Watcher.Renamed += new RenamedEventHandler(OnChanged);
-            Watcher.Changed += new FileSystemEventHandler(OnChanged);
-            Watcher.Created += new FileSystemEventHandler(OnChanged);
-            Watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            File_Watcher.Renamed += new RenamedEventHandler(OnFileChanged);
+            File_Watcher.Changed += new FileSystemEventHandler(OnFileChanged);
+            File_Watcher.Created += new FileSystemEventHandler(OnFileChanged);
+            File_Watcher.Deleted += new FileSystemEventHandler(OnFileChanged);
 
-            Watcher.EnableRaisingEvents = true;
+            File_Watcher.EnableRaisingEvents = true;
         }
 
-        private void OnChanged(object source, FileSystemEventArgs e)
+        private void OnFileChanged(object source, FileSystemEventArgs e)
         {
-            if(Last_File_Watched != e.FullPath || Last_Action_Watched != e.ChangeType.ToString())
-                LoadAmiiboBinFolder();
+            if (Last_File_Watched != e.FullPath || Last_File_Action_Watched != e.ChangeType.ToString())
+            {
+                ListFiles(Current_Folder);
+                treeView1.Invoke(new Action(() => treeView1.SelectedNode = Last_Node));
+            }
 
             Last_File_Watched = e.FullPath;
-            Last_Action_Watched = e.ChangeType.ToString();
+            Last_File_Action_Watched = e.ChangeType.ToString();
+        }
+
+        public void FolderWatcher()
+        {
+            Folder_Watcher.Path = (Current_Folder == "")? Config.Bin_Folder_Path : Current_Folder;
+            Folder_Watcher.NotifyFilter = NotifyFilters.DirectoryName;
+            Folder_Watcher.IncludeSubdirectories = true;
+
+            Folder_Watcher.Renamed += new RenamedEventHandler(OnFolderChanged);
+            Folder_Watcher.Changed += new FileSystemEventHandler(OnFolderChanged);
+            Folder_Watcher.Created += new FileSystemEventHandler(OnFolderChanged);
+            Folder_Watcher.Deleted += new FileSystemEventHandler(OnFolderChanged);
+
+            Folder_Watcher.EnableRaisingEvents = true;
+        }
+
+        private void OnFolderChanged(object source, FileSystemEventArgs e)
+        {
+            if (Last_Folder_Watched != e.FullPath || Last_Folder_Action_Watched != e.ChangeType.ToString())
+            {
+                List<string> savedExpansionState = null;  
+                treeView1.Invoke(new Action(() => savedExpansionState = treeView1.Nodes.GetExpansionState()));
+                LoadAmiiboBinFolder();
+                treeView1.Invoke(new Action(() => treeView1.Nodes.SetExpansionState(savedExpansionState)));
+            }
+
+            Last_Folder_Watched = e.FullPath;
+            Last_Folder_Action_Watched = e.ChangeType.ToString();
         }
 
         private void LoadAmiiboKey()
@@ -88,13 +135,35 @@ namespace AmiiBomb
             }
         }
 
-        private void LoadAmiiboBinFolder()
+        private void LoadAmiiboBinFolder(string Folder = "", TreeNode ParentNode = null)
+        {
+            treeView1.Invoke(new Action(() => treeView1.BeginUpdate()));
+            if (Folder == "")
+            {
+                treeView1.Invoke(new Action(() => treeView1.Nodes.Clear()));
+                treeView1.Invoke(new Action(() => treeView1.Nodes.Add("\\")));
+                Folder = Config.Bin_Folder_Path;
+                ParentNode = treeView1.Nodes[0];
+            }
+
+            string[] Directories = Directory.GetDirectories(Folder);
+            foreach (string DirName in Directories)
+            {
+                treeView1.Invoke(new Action(() => ParentNode.Nodes.Add(new DirectoryInfo(DirName).Name)));
+                LoadAmiiboBinFolder(DirName, ParentNode.Nodes[ParentNode.Nodes.Count - 1]);
+            }
+
+            treeView1.Invoke(new Action(() => treeView1.EndUpdate()));
+
+            treeView1.Invoke(new Action(() => { treeView1.SelectedNode = treeView1.Nodes[0]; }));
+        }
+
+        private void ListFiles(string Dir_Path)
         {
             listView1.Invoke(new Action(() => listView1.Items.Clear()));
-
-            string[] Files = Directory.GetFiles(Config.Bin_Folder_Path, "*.bin");
-
             listView1.Invoke(new Action(() => listView1.BeginUpdate()));
+
+            string[] Files = Directory.GetFiles(Dir_Path, "*.bin");
 
             foreach (string BinFile in Files)
             {
@@ -103,10 +172,10 @@ namespace AmiiBomb
                     DialogResult DgResult = MessageBox.Show(i18n.__("Message_Amiibo_Hash_Detected", Environment.NewLine), this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (DgResult == DialogResult.Yes)
                     {
-                        byte[] Hashed_File = File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, BinFile));
+                        byte[] Hashed_File = File.ReadAllBytes(Path.Combine(Current_Folder, BinFile));
                         Array.Resize(ref Hashed_File, 540);
-                        File.Move(Path.Combine(Config.Bin_Folder_Path, BinFile), Path.Combine(Config.Bin_Folder_Path, Path.GetFileNameWithoutExtension(BinFile) + ".bin.bak"));
-                        File.WriteAllBytes(Path.Combine(Config.Bin_Folder_Path, BinFile), Hashed_File);
+                        File.Move(Path.Combine(Current_Folder, BinFile), Path.Combine(Current_Folder, Path.GetFileNameWithoutExtension(BinFile) + ".bin.bak"));
+                        File.WriteAllBytes(Path.Combine(Current_Folder, BinFile), Hashed_File);
                     }
                 }
 
@@ -118,7 +187,6 @@ namespace AmiiBomb
             }
 
             listView1.Invoke(new Action(() => listView1.EndUpdate()));
-
             listView1.Invoke(new Action(() => listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent)));
             listView1.Invoke(new Action(() => listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize)));
         }
@@ -128,9 +196,15 @@ namespace AmiiBomb
             byte[] Decrypted_Amiibo;
 
             if (File_IsEncrypted(BinFile))
-                Decrypted_Amiibo = Amiibo_Class.Decrypt(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, BinFile)), AmiiKeys);
+            {
+                Decrypted_Amiibo = Amiibo_Class.Decrypt(File.ReadAllBytes(Path.Combine(Current_Folder, BinFile)), AmiiKeys);
+                spoofRandomIDToolStripMenuItem.Enabled = true;
+            }
             else
-                Decrypted_Amiibo = File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, BinFile));
+            {
+                Decrypted_Amiibo = File.ReadAllBytes(Path.Combine(Current_Folder, BinFile));
+                spoofRandomIDToolStripMenuItem.Enabled = false;
+            }
 
             string Char_ID = Amiibo_Class.Get_Character_ID(Decrypted_Amiibo);
             string GameSeries_ID = Amiibo_Class.Get_GameSeries_ID(Decrypted_Amiibo);
@@ -171,7 +245,7 @@ namespace AmiiBomb
             {
                 Stream stream = File.Open(Cache_File_Path, FileMode.Open);
                 var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                AmiiboLife_Cache_Class Cache_File = (AmiiboLife_Cache_Class)binaryFormatter.Deserialize(stream);
+                AmiiboInfo_Cache_Class Cache_File = (AmiiboInfo_Cache_Class)binaryFormatter.Deserialize(stream);
                 stream.Close();
 
                 if (Helper_Class.ValidSHA1(Decrypted_Amiibo, Cache_File.SHA1))
@@ -190,7 +264,7 @@ namespace AmiiBomb
             else
             {
                 Current_NFC_ID = NFC_ID;
-                string[] AmiiboLife_Info = AmiiboLife_Class.Get_Amiibo_Info(NFC_ID);
+                string[] AmiiboLife_Info = AmiiboInfo_Class.Get_AmiiboInfo(NFC_ID);
                 if (AmiiboLife_Info[2] != "")
                 {
                     pictureBox1.Load(AmiiboLife_Info[2]);
@@ -202,7 +276,7 @@ namespace AmiiBomb
                 seriesToolStripMenuItem.Text = AmiiboLife_Info[1].Trim();
                 label4.Text = AmiiboLife_Info[1].Trim();
 
-                AmiiboLife_Cache_Class Cache_File = new AmiiboLife_Cache_Class();
+                AmiiboInfo_Cache_Class Cache_File = new AmiiboInfo_Cache_Class();
                 Cache_File.SHA1 = Helper_Class.SHA1_File(Decrypted_Amiibo);
                 Cache_File.Name = AmiiboLife_Info[0].Trim();
                 Cache_File.Serie = AmiiboLife_Info[1].Trim();
@@ -225,7 +299,7 @@ namespace AmiiBomb
 
         private bool File_IsEncrypted(string BinFile)
         {
-            if (Amiibo_Class.IsEncrypted(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, BinFile))))
+            if (Amiibo_Class.IsEncrypted(File.ReadAllBytes(Path.Combine(Current_Folder, BinFile))))
                 return true;
             else return false;
         }
@@ -275,7 +349,7 @@ namespace AmiiBomb
         private void dumpAmiiboToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Flash_Form Form = new Flash_Form();
-            Form.Bin_Folder = Config.Bin_Folder_Path;
+            Form.Bin_Folder = Current_Folder;
             Form.Action_Write = false;
             Form.ShowDialog();
         }
@@ -289,7 +363,6 @@ namespace AmiiBomb
                 File.WriteAllText(AmiiBomb_Config_File, JsonConvert.SerializeObject(Config));
 
                 LoadAmiiboBinFolder();
-                FileWatcher();
             }
         }
 
@@ -324,37 +397,45 @@ namespace AmiiBomb
             {
                 if (registerAmiiboKeyToolStripMenuItem.Checked)
                 {
-                    IDataObject ClipData = Clipboard.GetDataObject();
-                    if (ClipData.GetData(DataFormats.Text) != null && ClipData.GetDataPresent(DataFormats.Text))
+                    try
                     {
-                        string Clipboard_Text = ClipData.GetData(DataFormats.Text).ToString();
-                        Clipboard_Text = Regex.Replace(Clipboard_Text, "[^a-zA-Z0-9-]", string.Empty);
-
-                        if (Clipboard_Text.Length == 320)
+                        IDataObject ClipData = Clipboard.GetDataObject();
+                        if (ClipData.GetData(DataFormats.Text) != null)
                         {
-                            if (Helper_Class.ValidSHA1(Helper_Class.String_To_Byte_Array(Clipboard_Text), Amiibo_Keys_Hash))
+                            if (ClipData.GetDataPresent(DataFormats.Text))
                             {
-                                this.Invoke(new Action(() => {
-                                    Helper_Class.FlashWindowEx(this);
-                                    DialogResult DgResult = MessageBox.Show(this, i18n.__("Clipboard_Key_Message1"), this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                string Clipboard_Text = ClipData.GetData(DataFormats.Text).ToString();
+                                Clipboard_Text = Regex.Replace(Clipboard_Text, "[^a-zA-Z0-9-]", string.Empty);
 
-                                    if (DgResult == DialogResult.Yes)
+                                if (Clipboard_Text.Length == 320)
+                                {
+                                    if (Helper_Class.ValidSHA1(Helper_Class.String_To_Byte_Array(Clipboard_Text), Amiibo_Keys_Hash))
                                     {
-                                        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                                        saveFileDialog1.Filter = i18n.__("Clipboard_Key_Filter", "|*.bin");
-                                        saveFileDialog1.Title = i18n.__("Clipboard_Key_Title");
-
-                                        if (saveFileDialog1.ShowDialog(this) == DialogResult.OK && saveFileDialog1.FileName != "")
+                                        this.Invoke(new Action(() =>
                                         {
-                                            MessageBox.Show(this, i18n.__("Clipboard_Key_Message2"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                        }
-                                        else Clipboard.SetDataObject("");
+                                            Helper_Class.FlashWindowEx(this);
+                                            DialogResult DgResult = MessageBox.Show(this, i18n.__("Clipboard_Key_Message1"), this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                                            if (DgResult == DialogResult.Yes)
+                                            {
+                                                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                                                saveFileDialog1.Filter = i18n.__("Clipboard_Key_Filter", "|*.bin");
+                                                saveFileDialog1.Title = i18n.__("Clipboard_Key_Title");
+
+                                                if (saveFileDialog1.ShowDialog(this) == DialogResult.OK && saveFileDialog1.FileName != "")
+                                                {
+                                                    MessageBox.Show(this, i18n.__("Clipboard_Key_Message2"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                                }
+                                                else Clipboard.SetDataObject("");
+                                            }
+                                            else Clipboard.SetDataObject("");
+                                        }));
                                     }
-                                    else Clipboard.SetDataObject("");
-                                }));
+                                }
                             }
                         }
                     }
+                    catch (Exception) {}
                 }
 
                 Application.DoEvents();
@@ -421,6 +502,20 @@ namespace AmiiBomb
                 if (Config.Bin_Folder_Path == null) AskBinFolder();
                 if (Config.KeyFile_Path == null) AskAmiiboKey();
                 if (Config.Locale == null) Config.Locale = I18n.GetLocale();
+
+                switch (Config.Database)
+                {
+                    case 1:
+                        amiibolifeToolStripMenuItem.Checked = false;
+                        amiiboAPIToolStripMenuItem.Checked = true;
+                        break;
+                    default:
+                        amiibolifeToolStripMenuItem.Checked = true;
+                        amiiboAPIToolStripMenuItem.Checked = false;
+                        break;
+                }
+
+                activeFilesCachingToolStripMenuItem.Checked = Config.Cache;
             }
             else
             {
@@ -439,7 +534,9 @@ namespace AmiiBomb
             if (Config.Bin_Folder_Path != null)
             {
                 LoadAmiiboBinFolder();
-                FileWatcher();
+                treeView1.Nodes[0].Expand();
+                treeView1.SelectedNode = treeView1.Nodes[0];
+                FolderWatcher();
             }
 
             if (Config.KeyFile_Path != null) LoadAmiiboKey();
@@ -473,6 +570,8 @@ namespace AmiiBomb
 
             if ((this.Width / 2) > ListView_Width) splitContainer1.SplitterDistance = ListView_Width;
             else if (this.Width > 160) splitContainer1.SplitterDistance = this.Width / 2;
+
+            splitContainer3.SplitterDistance = 20;
         }
 
         private void moreInformationsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -486,18 +585,18 @@ namespace AmiiBomb
 
             if (File_IsEncrypted(FileName))
             {
-                File.WriteAllBytes(Path.Combine(Config.Bin_Folder_Path, Path.GetFileNameWithoutExtension(FileName) + ".dec.bin"), Amiibo_Class.Decrypt(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, FileName)), AmiiKeys));
+                File.WriteAllBytes(Path.Combine(Current_Folder, Path.GetFileNameWithoutExtension(FileName) + ".dec.bin"), Amiibo_Class.Decrypt(File.ReadAllBytes(Path.Combine(Current_Folder, FileName)), AmiiKeys));
             }
             else
             {
-                File.WriteAllBytes(Path.Combine(Config.Bin_Folder_Path, Path.GetFileNameWithoutExtension(FileName) + ".enc.bin"), Amiibo_Class.Encrypt(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, FileName)), AmiiKeys));
+                File.WriteAllBytes(Path.Combine(Current_Folder, Path.GetFileNameWithoutExtension(FileName) + ".enc.bin"), Amiibo_Class.Encrypt(File.ReadAllBytes(Path.Combine(Current_Folder, FileName)), AmiiKeys));
             }
         }
 
         private void createTagToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Flash_Form Form = new Flash_Form();
-            Form.Current_File_Bin = Path.Combine(Config.Bin_Folder_Path, listView1.SelectedItems[0].Text.Trim());
+            Form.Current_File_Bin = Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim());
             Form.Action_Write = true;
             Form.ShowDialog();
         }
@@ -509,8 +608,8 @@ namespace AmiiBomb
             openFileDialog1.Filter = i18n.__("Write_AppData_Filter", "|*.AppData|", "|*.*");
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                byte[] AppData_Patched_File = Amiibo_Class.WriteAppData(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, listView1.SelectedItems[0].Text.Trim())), File.ReadAllBytes(openFileDialog1.FileName));
-                File.WriteAllBytes(Path.Combine(Config.Bin_Folder_Path, Path.GetFileNameWithoutExtension(listView1.SelectedItems[0].Text.Trim()) + ".AppData_Patched.bin"), AppData_Patched_File);
+                byte[] AppData_Patched_File = Amiibo_Class.WriteAppData(File.ReadAllBytes(Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim())), File.ReadAllBytes(openFileDialog1.FileName));
+                File.WriteAllBytes(Path.ChangeExtension(Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim()), ".AppData_Patched.bin"), AppData_Patched_File);
                 MessageBox.Show(this, i18n.__("Write_AppData_Message1", Path.GetFileName(openFileDialog1.FileName)), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -524,7 +623,7 @@ namespace AmiiBomb
 
             if (saveFileDialog1.ShowDialog(this) == DialogResult.OK && saveFileDialog1.FileName != "")
             {
-                byte[] AppData = Amiibo_Class.Dump_AppData(File.ReadAllBytes(Path.Combine(Config.Bin_Folder_Path, listView1.SelectedItems[0].Text.Trim())));
+                byte[] AppData = Amiibo_Class.Dump_AppData(File.ReadAllBytes(Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim())));
                 File.WriteAllBytes(saveFileDialog1.FileName, AppData);
                 MessageBox.Show(this, i18n.__("Dump_AppData_Message1"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -551,6 +650,8 @@ namespace AmiiBomb
             {
                 File.Delete(CacheFile);
             }
+
+            MessageBox.Show(this, i18n.__("Message_Cache_Deleted"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void activeFilesCachingToolStripMenuItem_Click(object sender, EventArgs e)
@@ -572,7 +673,7 @@ namespace AmiiBomb
 
         private void deleteFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string FilePath = Path.Combine(Config.Bin_Folder_Path, listView1.SelectedItems[0].Text.Trim());
+            string FilePath = Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim());
             DialogResult DgResult = MessageBox.Show(i18n.__("Message_Confirm_Delete"), this.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (DgResult == DialogResult.Yes)
             {
@@ -586,6 +687,193 @@ namespace AmiiBomb
         private void internalFlasherToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new Arduino_Form().ShowDialog();
+        }
+
+        private void textBox1_Enter(object sender, EventArgs e)
+        {
+            if (textBox1.Text == i18n.__("Search"))
+            {
+                textBox1.Text = "";
+                textBox1.ForeColor = Color.Black;
+
+                treeView1.Enabled = false;
+                Search_Backup_Current_Folder = Current_Folder;
+                File_Watcher.EnableRaisingEvents = false;
+                Folder_Watcher.EnableRaisingEvents = false;
+            }
+        }
+
+        private void textBox1_Leave(object sender, EventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(textBox1.Text))
+            {
+                textBox1.Text = i18n.__("Search");
+                textBox1.ForeColor = Color.DimGray;
+
+                Current_Folder = Search_Backup_Current_Folder;
+                treeView1.Enabled = true;
+                File_Watcher.EnableRaisingEvents = true;
+                Folder_Watcher.EnableRaisingEvents = true;
+                ListFiles(Current_Folder);
+                splitContainer1.Panel2.Visible = false;
+                amiiboToolStripMenuItem.Visible = false;
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox1.Text != i18n.__("Search"))
+            {
+                Exit_Search_Button.Visible = true;
+                if (!String.IsNullOrWhiteSpace(textBox1.Text))
+                {
+                    
+                    listView1.Items.Clear();
+                    listView1.BeginUpdate();
+
+                    foreach (string Search_File in Directory.EnumerateFiles(Config.Bin_Folder_Path, "*.bin", SearchOption.AllDirectories))
+                    {
+                        if (Path.GetFileName(Search_File.ToLower()).Contains(textBox1.Text.ToLower()))
+                        {
+                            Current_Folder = Config.Bin_Folder_Path;
+
+                            ListViewItem lvItem = new ListViewItem(" " + Search_File.Replace(Config.Bin_Folder_Path, "").Substring(1), 0);
+                            listView1.Items.Add(lvItem);
+                        }
+                    }
+
+                    listView1.EndUpdate();
+                    listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                    listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+                }
+            }
+            else Exit_Search_Button.Visible = false;
+        }
+
+        private void AddSearchButton()
+        {
+            Exit_Search_Button.Size = new Size(25, textBox1.Height);
+            Exit_Search_Button.Dock = DockStyle.Right;
+            Exit_Search_Button.Cursor = Cursors.Default;
+            Exit_Search_Button.BackgroundImage = new Bitmap(Properties.Resources.cancel, new Size(12, 12));
+            Exit_Search_Button.BackgroundImageLayout = ImageLayout.Center;
+            Exit_Search_Button.FlatStyle = FlatStyle.Flat;
+            Exit_Search_Button.ForeColor = Color.White;
+            Exit_Search_Button.FlatAppearance.BorderSize = 0;
+            Exit_Search_Button.Click += Exit_Search_Button_Click;
+            textBox1.Controls.Add(Exit_Search_Button);
+            this.AcceptButton = Exit_Search_Button;
+            SendMessage(textBox1.Handle, 0xd3, (IntPtr)2, (IntPtr)(Exit_Search_Button.Width << 16));
+        }
+
+        private void Exit_Search_Button_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            splitContainer3.Panel2.Focus();
+        }
+
+        private void Show_Search_Box()
+        {
+            Exit_Search_Button.PerformClick();
+
+            if (splitContainer3.Panel1Collapsed)
+            {
+                splitContainer3.Panel1Collapsed = false;
+                splitContainer3.Panel1.Show();
+                textBox1.Focus();
+            }
+            else
+            {
+                splitContainer3.Panel1Collapsed = true;
+                splitContainer3.Panel1.Hide();
+            }
+        }
+
+        private void searchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Show_Search_Box();
+        }
+
+        private void spoofRandomIDToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            byte[] Original_File = File.ReadAllBytes(Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim()));
+            byte[] UID = Amiibo_Class.Generate_Random_UID();
+            Array.Copy(UID, 0x000, Original_File, 0x000, UID.Length);
+            File.WriteAllBytes(Path.ChangeExtension(Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim()), ".spoof.bin"), Original_File);
+
+            MessageBox.Show(i18n.__("Message_Spoofed_Bin"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void amiibolifeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            amiibolifeToolStripMenuItem.Checked = true;
+            amiiboAPIToolStripMenuItem.Checked = false;
+
+            Config.Database = 0;
+            File.WriteAllText(AmiiBomb_Config_File, JsonConvert.SerializeObject(Config));
+        }
+
+        private void amiiboAPIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            amiibolifeToolStripMenuItem.Checked = false;
+            amiiboAPIToolStripMenuItem.Checked = true;
+
+            Config.Database = 1;
+            File.WriteAllText(AmiiBomb_Config_File, JsonConvert.SerializeObject(Config));
+        }
+
+        private void appDataEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            switch(Current_NFC_ID)
+            {
+                case "01030000-024F0902":
+                    Editor_TPWolf_Form Form = new Editor_TPWolf_Form();
+                    Form.Current_File_Bin = Path.Combine(Current_Folder, listView1.SelectedItems[0].Text.Trim());
+                    Form.ShowDialog();
+                    break;
+                default:
+                    MessageBox.Show(i18n.__("Message_No_AppData_Editor"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    break;
+            }            
+        }
+
+        private void powerSavesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PowerSaves_Form Form = new PowerSaves_Form();
+            Form.Bin_Folder = Current_Folder;
+            //Form.Action_Write = false;
+            Form.ShowDialog();
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            Current_Folder = Config.Bin_Folder_Path + e.Node.FullPath.Substring(1);
+            Last_Node = e.Node;
+            e.Node.Expand();
+            ListFiles(Current_Folder);
+            FileWatcher();
+        }
+
+        private void treeView1_AfterExpand(object sender, TreeViewEventArgs e)
+        {
+            treeView1.SelectedNode = e.Node;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                Show_Search_Box();
+
+                return true;
+            }
+            else if (keyData == (Keys.Control | Keys.N))
+            {
+                if (!amiiboToolStripMenuItem.Visible) return true;
+                else base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void withXLoaderToolStripMenuItem_Click(object sender, EventArgs e)

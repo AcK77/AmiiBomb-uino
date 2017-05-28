@@ -13,12 +13,20 @@ namespace AmiiBomb
 
         public Arduino_Class(string COM_Port, string BaudRate)
         {
+            //http://zachsaw.blogspot.fr/2010/07/serialport-ioexception-workaround-in-c.html
+            
+
             Serial = new SerialPort(COM_Port, int.Parse(BaudRate), Parity.None, 8, StopBits.One);
 
-            if (Serial.IsOpen != true)
+            if (!Serial.IsOpen)
             {
                 Serial.DataReceived += new SerialDataReceivedEventHandler(Arduino_DataReceived);
-                Serial.Open();
+
+                try
+                {
+                    Serial.Open();
+                }
+                catch (Exception) {}
             }
             else throw new Exception(i18n.__("NFC_No_Com_Port"));
         }
@@ -27,10 +35,12 @@ namespace AmiiBomb
         {
             Reading_Ended = false;
 
-            if (Message is string) Serial.Write((string)Message + "\n");
-            else if (Message is byte[]) Serial.Write((byte[])Message, 0, ((byte[])Message).Length);
+            if (Serial.IsOpen)
+            {
+                if (Message is string) Serial.Write((string)Message + "\n");
+                else if (Message is byte[]) Serial.Write((byte[])Message, 0, ((byte[])Message).Length);
+            }
 
-            
             var sw = Stopwatch.StartNew();
             while (!Reading_Ended)
             {

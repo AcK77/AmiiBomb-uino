@@ -124,19 +124,24 @@ https://github.com/Falco20019/libamiibo
 -&gt; AngleSharp
 https://anglesharp.github.io/
 
--&gt; Christophe Diericx for 
-ArduinoSketchUploader
+-&gt; Christophe Diericx for ArduinoSketchUploader
 https://github.com/christophediericx/ArduinoSketchUploader
 
 -&gt; MoonGateLabs for  i18n-Unity-CSharp
-https://github.com/MoonGateLabs/i18n-unity-csharp</value>
+https://github.com/MoonGateLabs/i18n-unity-csharp
+
+-&gt; Joel Coenraadts for HID-Sharp
+https://github.com/jcoenraadts/hid-sharp</value>
   </data>
   <data name="textBox3.Text" xml:space="preserve">
     <value>-&gt; Socram8888 for Amiitool
 https://github.com/socram8888/amiitool
 
 -&gt; John "LouieGeetoo" Pray for Amiibo.life
-http://www.amiibo.life
+http://www.amiibo.life/
+
+-&gt; N3evin for AmiiboAPI
+http://amiiboapi.herokuapp.com/
 
 -&gt; Konstantin-Kelemen for Arduino Sketches and his guide
 https://github.com/konstantin-kelemen/arduino-amiibo-tools
@@ -147,7 +152,8 @@ https://gist.github.com/bkifft/c6fa52dc39e29b85cb2787ac6dd633ed
 -&gt; Contributors of 3DBrew.org
 https://www.3dbrew.org/wiki/Amiibo 
 
--&gt; And many others for various informations on Amiibo...</value>
+-&gt; And many others for various informations on Amiibo...
+ </value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

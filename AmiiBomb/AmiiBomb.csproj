@@ -101,7 +101,7 @@
     <Compile Include="Arduino_Form.Designer.cs">
       <DependentUpon>Arduino_Form.cs</DependentUpon>
     </Compile>
-    <Compile Include="Class\AmiiboLife_Class.cs" />
+    <Compile Include="Class\AmiiboInfo_Class.cs" />
     <Compile Include="Class\Amiibo_Class.cs" />
     <Compile Include="Class\ArduinoUploader\ArduinoSketchUploader.cs" />
     <Compile Include="Class\ArduinoUploader\ArduinoSketchUploaderOptions.cs" />
@@ -181,6 +181,7 @@
     <Compile Include="Class\COM_Class.cs" />
     <Compile Include="Class\Config_Class.cs" />
     <Compile Include="Class\CountryCode_Class.cs" />
+    <Compile Include="Class\HIDInterface_Class.cs" />
     <Compile Include="Class\I18n_Class.cs" />
     <Compile Include="Class\libamiibo\AmiiboKeys.cs" />
     <Compile Include="Class\libamiibo\ArraySegmentExtensions.cs" />
@@ -192,6 +193,12 @@
     <Compile Include="Class\NLog_Class.cs" />
     <Compile Include="Class\SimpleJSON_Class.cs" />
     <Compile Include="Class\Translate_Class.cs" />
+    <Compile Include="Editor_TPWolf_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Editor_TPWolf_Form.Designer.cs">
+      <DependentUpon>Editor_TPWolf_Form.cs</DependentUpon>
+    </Compile>
     <Compile Include="Flash_Form.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -205,6 +212,12 @@
       <DependentUpon>Main_Form.cs</DependentUpon>
     </Compile>
     <Compile Include="Class\Helper_Class.cs" />
+    <Compile Include="PowerSaves_Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PowerSaves_Form.Designer.cs">
+      <DependentUpon>PowerSaves_Form.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="About_Form.resx">
@@ -213,11 +226,17 @@
     <EmbeddedResource Include="Arduino_Form.resx">
       <DependentUpon>Arduino_Form.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Editor_TPWolf_Form.resx">
+      <DependentUpon>Editor_TPWolf_Form.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Flash_Form.resx">
       <DependentUpon>Flash_Form.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main_Form.resx">
       <DependentUpon>Main_Form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PowerSaves_Form.resx">
+      <DependentUpon>PowerSaves_Form.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -253,6 +272,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AmiiBomb_Icon.ico" />
+    <None Include="ico\Hearts\Heart_Full.png" />
+    <None Include="ico\Hearts\Heart_0.75.png" />
+    <None Include="ico\Hearts\Heart_0.25.png" />
+    <None Include="ico\Hearts\Heart_0.5.png" />
+    <None Include="ico\page_edit.png" />
+    <None Include="ico\AmiiBomb-logo.png" />
+    <None Include="ico\powertag-logo.png" />
+    <None Include="ico\layout_content.png" />
+    <None Include="ico\layers.png" />
+    <None Include="ico\magnifier.png" />
     <None Include="ico\package_go.png" />
     <None Include="ico\key_go.png" />
     <None Include="ico\key_delete.png" />
