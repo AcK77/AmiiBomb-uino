@@ -1,4 +1,4 @@
-﻿//https://github.com/Falco20019/libamiibo
+//https://github.com/Falco20019/libamiibo
 
 using System;
 
@@ -148,8 +148,8 @@ namespace AmiiBomb
                 throw new Exception("The binary key cannot have an odd number of digits");
 
             byte[] arr = new byte[hex.Length >> 1];
-
-            for (int i = 0; i < hex.Length >> 1; ++i)
+          //  var hexLen = hex.Length;
+            for (int i = 0; i < (hex.Length >> 1); ++i)
             {
                 arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
             }
