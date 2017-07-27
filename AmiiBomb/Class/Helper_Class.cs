@@ -143,6 +143,23 @@ namespace AmiiBomb
             a[0] = char.ToUpper(a[0]);
             return new string(a);
         }
+
+        public static bool ByteArrayToFile(string fileName, byte[] byteArray)
+        {
+            try
+            {
+                using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                {
+                    fs.Write(byteArray, 0, byteArray.Length);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception caught in process: " + ex);
+                return false;
+            }
+        }
     }
 
     public static class TreeViewExtensions

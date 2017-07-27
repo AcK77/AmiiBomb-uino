@@ -424,6 +424,8 @@ namespace AmiiBomb
 
                                                 if (saveFileDialog1.ShowDialog(this) == DialogResult.OK && saveFileDialog1.FileName != "")
                                                 {
+                                                    byte[] clipboardStringBytes = Helper_Class.String_To_Byte_Array(Clipboard_Text);
+                                                    Helper_Class.ByteArrayToFile(saveFileDialog1.FileName, clipboardStringBytes);
                                                     MessageBox.Show(this, i18n.__("Clipboard_Key_Message2"), this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                                                 }
                                                 else Clipboard.SetDataObject("");
